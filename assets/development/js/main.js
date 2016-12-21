@@ -32,6 +32,9 @@
             self.sort = function(){
                 console.log('Sorting by: '+this.dataset.sort);
                 tableRows = tableRows.sort(self.sortByKey(this.innerHTML));
+                tableRows.forEach(function(row){
+                    console.log(row.index);
+                });
                 self.updateTable();
             };
 
@@ -79,6 +82,12 @@
                         self.addData(data);
                     }
                 });
+                self.controls();
+            };
+
+            self.controls = function(){
+                var settingsWrapper = $('.view-settings');
+
             };
 
             self.init();
@@ -88,3 +97,7 @@
 })(jQuery);
 
 $('.manipulatable').manipulatable();
+
+$('.open-view-settings').click(function(){
+    $('body').toggleClass('body--view-settings-active')
+});

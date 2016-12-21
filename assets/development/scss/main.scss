@@ -45,3 +45,19 @@ td,th{
   border-right: 1px solid #ebeced;
   padding:5px;
 }
+
+.view-settings{
+  display:none;
+}
+
+.body{
+  &--view-settings-active{
+    .view-settings{
+      display:block;
+    }
+  }
+}
+
+.open-view-settings{
+
+}
