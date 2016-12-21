@@ -25,36 +25,50 @@
             };
 
             self.sortByKey = function(key,desc) {
+                /*
+
+                    TODO fix sorting
+                 */
                 return function(a,b){
-                    return desc ? ~~(a[key] < b[key]) : ~~(a[key] > b[key]);
+                    if(isNaN(a[key] && isNaN(b[key]))) {
+                        return desc ? ~~(a[key] < b[key]) : ~~(a[key] > b[key]);
+                    } else if(key == 'balance'){
+                        return desc ? parseInt(a[key].replace('$','').replace(',','')) - parseInt(b[key].replace('$','').replace(',',''))
+                             : parseInt(b[key].replace('$','').replace(',','')) - parseInt(a[key].replace('$','').replace(',',''))
+                    } else {
+                        return desc ? b[key] - a[key] : a[key] - b[key];
+                    }
                 }
             };
 
             self.sort = function(){
-                tableRows = tableRows.sort(self.sortByKey(this.innerHTML));
+                $(this).toggleClass('sort-up');
+                tableRows = tableRows.sort(self.sortByKey(this.innerHTML, $(this).hasClass('sort-up')));
+
                 self.updateTable();
             };
 
             self.updateTable = function(){
-                self.empty(); // Clear previous stuff
-                var thead   = document.createElement('thead');
-                var theadTr = document.createElement('tr');
-                columnNames.forEach(function(columnName){
-                    var text = document.createTextNode(columnName);
-                    var th   = document.createElement('th');
-                    th.classList.add(columnName);
-                    th.appendChild(text);
-                    th.addEventListener('click', self.sort);
-                    console.log($('.checkbox_'+columnName+':checked').length);
-                    if($('.checkbox_'+columnName+':checked').length < 1){
-                        $(th).addClass('cellHidden');
-                    }
-                    th.dataset.sort = columnName;
-                    theadTr.appendChild(th);
+                self.children('tbody').remove(); // Clear previous tbody
+                if(!self.has('thead').length) {
+                    var thead = document.createElement('thead');
+                    var theadTr = document.createElement('tr');
+                    columnNames.forEach(function (columnName) {
+                        var text = document.createTextNode(columnName);
+                        var th = document.createElement('th');
+                        th.classList.add(columnName);
+                        th.appendChild(text);
+                        th.addEventListener('click', self.sort);
+                        if ($('.checkbox_' + columnName + ':checked').length < 1) {
+                            $(th).addClass('cellHidden');
+                        }
+                        th.dataset.sort = columnName;
+                        theadTr.appendChild(th);
 
-                });
-                thead.appendChild(theadTr);
-                self.append(thead);
+                    });
+                    thead.appendChild(theadTr);
+                    self.append(thead);
+                }
 
                 var tbody = document.createElement('tbody');
 
@@ -63,11 +77,13 @@
                     for(key in row){
                         var text = document.createTextNode(row[key]);
                         var td = document.createElement('td');
-                        td.classList.add(key)
+                        td.classList.add(key);
+
                         td.appendChild(text);
                         if(key == 'about'){
                             td.classList.add('long-text');
                         }
+
                         if($('.checkbox_'+key+':checked').length < 1){
                             $(td).addClass('cellHidden');
                         }
@@ -111,7 +127,6 @@
             };
 
             self.init();
-
         });
     }
 })(jQuery);
