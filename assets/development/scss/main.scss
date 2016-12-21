@@ -22,3 +22,16 @@
   margin: -20px 4px 0 0;
   right:0;
 }
+
+.table-responsive{
+  max-width: 100%;
+  border: 1px solid #ebeced;
+  overflow: scroll;
+  height: 50vh;
+}
+
+.long-text{
+  display:inline-block;
+  height:80px;
+  overflow:hidden;
+}
