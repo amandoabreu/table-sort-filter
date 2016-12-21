@@ -6,7 +6,7 @@
 }
 
 .sortable--down:after{
-  content: "▲";
+  content: "\2191";
   color:red;
   display:block;
   position:absolute;
@@ -15,7 +15,7 @@
 }
 
 .sortable--up:after{
-  content: "▼";
+  content: "\2193";
   color:red;
   display:block;
   position:absolute;
