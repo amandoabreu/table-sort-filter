@@ -90,4 +90,8 @@ var manipulatable = function(element){
     _.init();
 };
 
-var table = new manipulatable('.manipulatable');
+var populate = function(){
+  $.ajax
+};
+
+manipulatable('.manipulatable');
