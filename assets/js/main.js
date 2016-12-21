@@ -20,6 +20,7 @@
                     }
                     tableRows.push(d);
                 });
+                self.controls();
                 self.updateTable();
             };
 
@@ -44,6 +45,10 @@
                     th.classList.add(columnName);
                     th.appendChild(text);
                     th.addEventListener('click', self.sort);
+                    console.log($('.checkbox_'+columnName+':checked').length);
+                    if($('.checkbox_'+columnName+':checked').length < 1){
+                        $(th).addClass('cellHidden');
+                    }
                     th.dataset.sort = columnName;
                     theadTr.appendChild(th);
 
@@ -63,6 +68,9 @@
                         if(key == 'about'){
                             td.classList.add('long-text');
                         }
+                        if($('.checkbox_'+key+':checked').length < 1){
+                            $(td).addClass('cellHidden');
+                        }
                         tbodyTr.appendChild(td);
                     }
                     tbody.appendChild(tbodyTr);
@@ -80,12 +88,26 @@
                         self.addData(data);
                     }
                 });
-                self.controls();
+
             };
 
             self.controls = function(){
                 var settingsWrapper = $('.view-settings');
-
+                var form = document.createElement('form');
+                columnNames.forEach(function(columnName){
+                    var text = document.createTextNode(columnName);
+                    var checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.classList.add('checkbox_'+columnName);
+                    checkbox.addEventListener('click', function(){
+                        $('.'+this.value).toggleClass('cellHidden');
+                    });
+                    checkbox.value = columnName;
+                    checkbox.checked = 'checked';
+                    form.append(checkbox);
+                    form.append(columnName);
+                });
+                settingsWrapper.append(form);
             };
 
             self.init();
