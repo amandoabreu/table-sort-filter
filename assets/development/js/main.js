@@ -30,11 +30,7 @@
             };
 
             self.sort = function(){
-                console.log('Sorting by: '+this.dataset.sort);
                 tableRows = tableRows.sort(self.sortByKey(this.innerHTML));
-                tableRows.forEach(function(row){
-                    console.log(row.index);
-                });
                 self.updateTable();
             };
 
@@ -45,6 +41,7 @@
                 columnNames.forEach(function(columnName){
                     var text = document.createTextNode(columnName);
                     var th   = document.createElement('th');
+                    th.classList.add(columnName);
                     th.appendChild(text);
                     th.addEventListener('click', self.sort);
                     th.dataset.sort = columnName;
@@ -61,6 +58,7 @@
                     for(key in row){
                         var text = document.createTextNode(row[key]);
                         var td = document.createElement('td');
+                        td.classList.add(key)
                         td.appendChild(text);
                         if(key == 'about'){
                             td.classList.add('long-text');
