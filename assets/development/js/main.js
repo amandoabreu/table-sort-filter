@@ -24,6 +24,26 @@
                 self.updateTable();
             };
 
+            self.filterRows = function(values){
+                var tempRows = null;
+                if(typeof values[1] !== 'undefined'){ // Contains a value for a key to sort on
+                    tempRows = tableRows.filter(function (el) {
+                        return el[values[0]] == values[1];
+                    });
+                } else {
+                    tempRows = tableRows.map(function(object){
+                        for(var oKey in object){
+                            if(object[oKey] == values[0]) return object
+                        }
+                    });
+
+                }
+                self.updateTable(tempRows);
+                /*tableRows = tableRows.filter(function (el) {
+                    return 0;
+                });*/
+            };
+
             self.sortByKey = function(key,desc) {
                 /*
 
@@ -43,12 +63,13 @@
 
             self.sort = function(){
                 $(this).toggleClass('sort-up');
-                tableRows = tableRows.sort(self.sortByKey(this.innerHTML, $(this).hasClass('sort-up')));
+                var rows = tableRows.sort(self.sortByKey(this.innerHTML, $(this).hasClass('sort-up')));
 
-                self.updateTable();
+                self.updateTable(rows);
             };
 
-            self.updateTable = function(){
+            self.updateTable = function(rows){
+                var useRows = rows ? rows : tableRows; // Use tableRows if no other rows have been set
                 self.children('tbody').remove(); // Clear previous tbody
                 if(!self.has('thead').length) {
                     var thead = document.createElement('thead');
@@ -71,8 +92,7 @@
                 }
 
                 var tbody = document.createElement('tbody');
-
-                tableRows.forEach(function(row){
+                useRows.forEach(function(row){
                     var tbodyTr = document.createElement('tr');
                     for(key in row){
                         var text = document.createTextNode(row[key]);
@@ -110,6 +130,7 @@
             self.controls = function(){
                 var settingsWrapper = $('.view-settings');
                 var form = document.createElement('form');
+                form.classList.add('filter-form');
                 columnNames.forEach(function(columnName){
                     var text = document.createTextNode(columnName);
                     var checkbox = document.createElement('input');
@@ -123,10 +144,22 @@
                     form.append(checkbox);
                     form.append(columnName);
                 });
+                var input = document.createElement('input');
+                input.classList.add('rows-filter');
+                input.setAttribute('placeholder', 'Filter, column:string');
+                input.addEventListener('change', function(){
+                    var filterValues = this.value.split(':');
+                    self.filterRows(filterValues);
+                });
+                form.addEventListener('submit', function(e){
+                    e.preventDefault();
+                });
+                form.appendChild(input);
                 settingsWrapper.append(form);
             };
 
             self.init();
+
         });
     }
 })(jQuery);
