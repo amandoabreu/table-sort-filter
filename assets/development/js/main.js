@@ -20,30 +20,42 @@
         var columnNames = []; // Column names
         var filter = ''; // Storing filter information
 
-        _.init = function(){
+        var init = function(){
             $.ajax({
                 url: 'data.json',
-                dataType: 'json',
                 success: function (data) {
-                    _.addData(data);
+                    addData(data);
                 }
             });
         };
 
-        _.addData = function(data){
-            data.forEach(function(d){
+        var addData = function(data){
+            data.forEach(function(row){
                 if(columnNames.length == 0){
-                    for(var key in d){
+                    for(var key in row){
                         columnNames.push(key);
+
                     }
                 }
-                tableRows.push(d);
+
+                Object.keys(row).map(function(key, index) {
+                    var tempFriends = [];
+                    if(key == 'name') row.name = [row.name.first, row.name.last].join(' ');
+                    //if(key == 'name') row[key] = [row[key].first, row[key].last].join(' ');
+                    if(key == 'friends'){
+                        row[key].forEach(function(friend) {
+                            tempFriends.push(friend.name);
+                        });
+                        row.friends = tempFriends.join(' ');
+                    }
+                });
+                tableRows.push(row);
             });
-            _.controls();
-            _.updateTable();
+            controls();
+            updateTable();
         };
 
-        _.filterRows = function(values){
+        var filterRows = function(values){
             if(values.length > 0){
                 filter = values.split(':');
                 if(typeof filter[1] !== 'undefined'){ // Probably contains a value for a key to sort on
@@ -51,7 +63,7 @@
                     modifiedRows = tableRows.filter(function (el) {
                         return el[filter[0]] == filter[1];
                     });
-                } else {
+                } else { // Search all columns?
                     console.log('Filtering by value = '+filter[0]);
                     modifiedRows = tableRows.map(function(object){
                         for(var oKey in object){
@@ -60,43 +72,36 @@
                     });
 
                 }
-                _.updateTable(modifiedRows);
+                updateTable(modifiedRows);
             } else {
                 modifiedRows = [];
                 filter = '';
                 console.log('No filter');
-                console.log(modifiedRows);
-                _.updateTable();
+                updateTable();
             }
         };
 
-        _.sortByKey = function(key,desc) {
-            /* TODO fix sorting  */
-            console.log('Sorting by['+key+'] desc: '+desc);
+        var sortByKey = function(key,desc) {
+            console.log('Sorting by '+key+', desc: '+desc);
             return function(a,b){
-                if(isNaN(a[key] && isNaN(b[key]))) {
-                    return desc ? ~~(a[key] < b[key]) : ~~(a[key] > b[key]);
-                } else if(key == 'balance'){
-                    return desc ? parseInt(a[key].replace('$','').replace(',','')) - parseInt(b[key].replace('$','').replace(',',''))
-                        : parseInt(b[key].replace('$','').replace(',','')) - parseInt(a[key].replace('$','').replace(',',''))
-                } else {
-                    return desc ? b[key] - a[key] : a[key] - b[key];
-                }
-            }
+                a = a[key];
+                a = String(a).toLowerCase();
+                b = b[key];
+                b = String(b).toLowerCase();
+                return desc ? ~~(b.localeCompare(a)) : ~~(a.localeCompare(b));
+            };
         };
 
-        _.sort = function(){
+        var sort = function(){ // runs when th is clicked
             $(this).toggleClass('sort-up');
-            if(modifiedRows.length == 0){
-                modifiedRows = tableRows.sort(_.sortByKey(this.innerHTML, $(this).hasClass('sort-up')));
-            } else {
-                modifiedRows = modifiedRows.sort(_.sortByKey(this.innerHTML, $(this).hasClass('sort-up')));
-            }
+            var sortRows = modifiedRows.length == 0 ? tableRows : modifiedRows;
 
-            _.updateTable(modifiedRows);
+            modifiedRows = sortRows.sort(sortByKey(this.dataset.orderby, $(this).hasClass('sort-up')));
+
+            updateTable(modifiedRows);
         };
 
-        _.updateTable = function(rows){
+        var updateTable = function(rows){
             var outputRows = rows && filter != '' ? rows : tableRows;
             thisTable.children('tbody').remove(); // Clear previous tbody
             if(!thisTable.has('thead').length) {
@@ -105,9 +110,10 @@
                 columnNames.forEach(function (columnName) {
                     var text = document.createTextNode(columnName);
                     var th = document.createElement('th');
+                    th.setAttribute('data-orderby', columnName);
                     th.classList.add(columnName);
                     th.appendChild(text);
-                    th.addEventListener('click', _.sort);
+                    th.addEventListener('click', sort);
                     if ($('.checkbox_' + columnName + ':checked').length < 1) {
                         $(th).addClass('cellHidden');
                     }
@@ -145,12 +151,9 @@
         };
 
 
-        _.controls = function(){
-            var settingsWrapper = $('.view-settings');
-            var form = document.createElement('form');
-            form.classList.add('filter-form');
+        var controls = function(){
+            var columnHide = document.getElementById('hide');
             columnNames.forEach(function(columnName){
-                var text = document.createTextNode(columnName);
                 var checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.classList.add('checkbox_'+columnName);
@@ -159,23 +162,19 @@
                 });
                 checkbox.value = columnName;
                 checkbox.checked = 'checked';
-                form.append(checkbox);
-                form.append(columnName);
+                columnHide.append(checkbox);
+                columnHide.append(columnName);
             });
             var input = document.createElement('input');
             input.classList.add('rows-filter');
-            input.setAttribute('placeholder', 'Filter, column:string');
-            input.addEventListener('change', function(){
-                _.filterRows(this.value);
-            });
-            form.addEventListener('submit', function(e){
+            input.setAttribute('placeholder', 'Filter, column:string, press enter');
+            $('.filter-form').on('submit', function(e){
+                filterRows($(this).children('.filter-rows').val());
                 e.preventDefault();
             });
-            form.appendChild(input);
-            settingsWrapper.append(form);
         };
 
-        _.init();
+        init();
     };
 
     $.fn.manipulatable = function(params) {
