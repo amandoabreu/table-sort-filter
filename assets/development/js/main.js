@@ -47,12 +47,12 @@
             if(values.length > 0){
                 filter = values.split(':');
                 if(typeof filter[1] !== 'undefined'){ // Probably contains a value for a key to sort on
-                    console.log('Filtering by ['+filter[0]+'] value: '+filter[1]);
+                    console.log('Filtering by '+filter[0]+' = '+filter[1]);
                     modifiedRows = tableRows.filter(function (el) {
                         return el[filter[0]] == filter[1];
                     });
                 } else {
-                    console.log('Filtering by value: '+filter[0]);
+                    console.log('Filtering by value = '+filter[0]);
                     modifiedRows = tableRows.map(function(object){
                         for(var oKey in object){
                             if(object[oKey] == values[0]) return object
@@ -60,7 +60,7 @@
                     });
 
                 }
-                if(modifiedRows.length > 0) _.updateTable(modifiedRows);
+                _.updateTable(modifiedRows);
             } else {
                 modifiedRows = [];
                 filter = '';
@@ -97,7 +97,7 @@
         };
 
         _.updateTable = function(rows){
-            var outputRows = rows && filter == '' ? rows : tableRows;
+            var outputRows = rows && filter != '' ? rows : tableRows;
             thisTable.children('tbody').remove(); // Clear previous tbody
             if(!thisTable.has('thead').length) {
                 var thead = document.createElement('thead');
