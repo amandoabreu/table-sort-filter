@@ -3,4 +3,4 @@
 * Implement a column filter (UI is up to you) (I need to be able to select which columns I want to see in the table. For example, I may not want to see the latitude and longitude all the time)
 * Implement a data filter (text field)
 * Enable key based filtering (example: prefixed with "company:" will only filter based on company values)
-* Filter on all columns, not just the currently displayed columns
+* Filter on all columns, not just the currently displayed columns 
